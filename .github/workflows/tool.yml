@@ -1,0 +1,89 @@
+name: Tool
+
+# Checks our tool on every push that touches it:
+#   1. runs its unit tests,
+#   2. builds the release version the way Light's build server does (code shrinking on,
+#      arm64 only), to catch problems before submitting,
+#   3. builds an installable test APK (debug and release) you can download from this run's
+#      "Artifacts" section and sideload onto a Light Phone III.
+# The APKs are signed with the SDK's public development key, for testing only. Light signs the
+# real one when the tool is submitted on dashboard.thelightphone.com.
+
+on:
+  push:
+    paths:
+      - 'tool/**'
+      - 'sdk/**'
+      - 'plugin/**'
+      - 'gradle/**'
+      - '*.gradle.kts'
+      - 'gradle.properties'
+      - '.github/workflows/tool.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tool:
+    name: Test and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # toolOnly skips Light's example tools and emulator, which we don't need here.
+      - name: Unit tests
+        run: ./gradlew :tool:testDebugUnitTest -DlightSdk.toolOnly=true --stacktrace
+
+      - name: Release build (as Light's build server does it)
+        run: ./gradlew :tool:assembleRelease -DlightSdk.toolOnly=true -DlightSdk.abiFilters=arm64-v8a --stacktrace
+
+      - name: Debug build
+        run: ./gradlew :tool:assembleDebug -DlightSdk.toolOnly=true --stacktrace
+
+      - name: Name the APKs after the tool and version
+        id: apk
+        run: |
+          id=$(sed -n 's/^id *= *"\(.*\)"/\1/p' tool/lighttool.toml)
+          version=$(sed -n 's/^versionName *= *"\(.*\)"/\1/p' tool/lighttool.toml)
+          name="${id}-${version}"
+          mkdir -p out
+          cp tool/build/outputs/apk/debug/*.apk "out/${name}-debug.apk"
+          cp tool/build/outputs/apk/release/*.apk "out/${name}-release.apk"
+          (cd out && sha256sum *.apk | tee SHA256SUMS)
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.name }}
+          path: out/
+          retention-days: 30
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tool/build/reports/tests/
+          retention-days: 7
