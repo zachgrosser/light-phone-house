@@ -28,10 +28,9 @@ import kotlinx.coroutines.launch
 data class SettingsState(
     val address: String? = null,
     val hasToken: Boolean = false,
-    /** The result of the last connection check, or a problem with what was entered. */
     val status: String? = null,
     val checking: Boolean = false,
-    /** "Forget" was tapped once; a second tap forgets. */
+    // Forget needs a second tap.
     val confirmForget: Boolean = false,
     val showAbout: Boolean = false,
 )
@@ -71,7 +70,6 @@ class SettingsViewModel(private val store: HouseStore) : LightViewModel<Unit>() 
         }
     }
 
-    /** A scanned QR code: the token, and maybe the address too. */
     fun setFromCode(scanned: String) {
         val code = parseSetupCode(scanned)
         if (code == null) {
@@ -135,7 +133,6 @@ class SettingsViewModel(private val store: HouseStore) : LightViewModel<Unit>() 
     }
 }
 
-/** Connecting to Home Assistant, and About. */
 class SettingsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, SettingsViewModel>(sealedActivity) {
 
     override val viewModelClass: Class<SettingsViewModel>
@@ -212,11 +209,9 @@ internal fun SettingsContent(
             }
             ListHeading("Access tokens")
             Note(
-                "In Home Assistant, open your profile, then Security, and under Long-lived access " +
-                    "tokens choose Create token. Copy it before closing that window: it's shown only once.\n\n" +
-                    "A QR code is the easy way to get it here. It can hold the token alone, or the address " +
-                    "and token separated by a space. Make it on your own computer rather than a website, " +
-                    "since anyone with the token can control your home.",
+                "Make one in Home Assistant under your profile → Security → Long-lived access tokens. " +
+                    "It's only shown once, so copy it.\n\n" +
+                    "Scanning a QR code is easiest. Make the code on your own computer, not a website.",
             )
             ListRow(title = "About House", onClick = onAbout)
             Spacer(Modifier.height(unit * 2f))
@@ -247,27 +242,22 @@ internal fun AboutContent(onBack: () -> Unit) {
         ) {
             AboutSection(
                 null,
-                "House puts a few shortcuts to your Home Assistant on your Light Phone: switch lights " +
-                    "and light groups on and off, open and close blinds, and run scenes and scripts. " +
-                    "For everything else, use Home Assistant itself.",
+                "A few Home Assistant shortcuts for your Light Phone.",
             )
             AboutSection(
                 "Privacy",
-                "House talks only to the Home Assistant address you enter, directly from this phone. " +
-                    "Your address, access token and shortcuts are kept in House's private storage on " +
-                    "this phone and nowhere else. House has no ads, analytics or tracking.\n\n" +
-                    "Anyone who has your access token can control your home. To revoke it, delete it " +
-                    "in Home Assistant (your profile, then Security).",
+                "House only talks to your Home Assistant. Your address, token and shortcuts stay on " +
+                    "this phone. No ads or tracking.\n\n" +
+                    "To revoke the token, delete it in Home Assistant under your profile → Security.",
             )
             AboutSection(
                 "Trademark",
-                "Home Assistant is a trademark of the Open Home Foundation. House is an independent " +
-                    "tool, not made by, affiliated with or endorsed by Home Assistant, the Open Home " +
-                    "Foundation or Light.",
+                "Home Assistant is a trademark of the Open Home Foundation. House isn't affiliated " +
+                    "with or endorsed by Home Assistant or Light.",
             )
             AboutSection(
                 "Open source",
-                "House is free and open source under the MIT License: $SOURCE_CODE_URL\n\n" +
+                "MIT licensed: $SOURCE_CODE_URL\n\n" +
                     "Version ${BuildConfig.VERSION_NAME}",
             )
             Spacer(Modifier.height(unit * 2f))

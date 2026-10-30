@@ -30,7 +30,6 @@ sealed interface PickerState {
     data class Ready(val entities: List<Entity>, val chosen: Set<String>) : PickerState
 }
 
-/** Groups [entities] under their kind's heading, in [EntityKind] order, alphabetically within each. */
 fun groupForPicker(entities: List<Entity>): List<Pair<EntityKind, List<Entity>>> =
     entities.filter { it.kind != null }
         .groupBy { it.kind!! }
@@ -56,7 +55,6 @@ class PickerViewModel(private val store: HouseStore) : LightViewModel<Unit>() {
         }
     }
 
-    /** Adds the entity to the main screen, or takes it off. Saved straight away. */
     fun toggle(entity: Entity) {
         viewModelScope.launch {
             val settings = store.toggleShortcut(Shortcut(entity.id, entity.name))
@@ -66,7 +64,6 @@ class PickerViewModel(private val store: HouseStore) : LightViewModel<Unit>() {
     }
 }
 
-/** Chooses which lights, switches, scenes and so on appear on the main screen. */
 class PickerScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, PickerViewModel>(sealedActivity) {
 
     override val viewModelClass: Class<PickerViewModel>

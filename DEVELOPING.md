@@ -1,113 +1,84 @@
 # Developing
 
-How to set up your computer, run House on Light's emulator, check other screen sizes, run the tests, and get a build onto a phone. Written for a Mac with Apple silicon; Windows and Linux work too, but the emulator script hasn't been tried there.
+Written for a Mac with Apple silicon. Windows and Linux should work too, but the emulator script hasn't been tried there.
 
-## 1. One-time setup
+## Setup
 
-**Install Android Studio.** Download it from [developer.android.com/studio](https://developer.android.com/studio) ("Mac with Apple chip" on an M-series Mac), open it and run the setup wizard with the **Standard** options.
+1. Install [Android Studio](https://developer.android.com/studio) and run the setup wizard with the defaults.
+2. Clone the repo (Android Studio's welcome screen has **Clone Repository**) and wait for Gradle sync to finish.
+3. Light's build needs exactly **Java 17**. In Android Studio go to Settings → Build, Execution, Deployment → Build Tools → Gradle, and under **Gradle JDK** choose Download JDK → 17.
 
-**Get the code.** On Android Studio's welcome screen choose **Clone Repository**, sign in to GitHub and pick `light-phone-house`. Wait for the progress bar at the bottom ("Gradle sync") to finish. To try work that's still in a pull request, click the branch name at the top of the window, choose the branch under **Remote**, then **Checkout**.
+If Android Studio offers to upgrade AGP or Gradle, say no. Light picks those versions.
 
-**Install Java 17.** Light's build tools need exactly Java 17, which Android Studio doesn't include. Open **Settings → Build, Execution, Deployment → Build Tools → Gradle**, click the **Gradle JDK** menu, choose **Download JDK**, pick version **17** (any vendor) and click **Download**. Keep it selected.
+## Emulator
 
-> If Android Studio offers an **"AGP Upgrade Assistant"**, close it without upgrading: Light chooses those versions for the SDK. Ignore "Migrate to Gradle Daemon toolchain" too.
+Light's emulator runs inside a normal Android virtual phone.
 
-## 2. Light's emulator
-
-Light's emulator runs inside an Android virtual phone and behaves like a Light Phone III. (If you've already set it up for Wiki, the same `LightPhone` virtual phone works: just `start` and `install` from this repo.)
-
-**A test Home Assistant.** To try House without your real home, run Home Assistant (or any stand-in that answers its REST API) on your computer and enter `10.0.2.2:8123` as the address: that's the emulator's name for your computer.
-
-**Create the virtual phone (once).** Open **Device Manager** (phone icon on the right edge), click **+**, then **Create Virtual Device**:
-
-1. Pick **Medium Phone**. The script reshapes its screen to match the Light Phone III's.
-2. Set **API** to **API 34** ("UpsideDownCake") and **Services** to **Android Open Source** (some versions say **No Google APIs**; never Google Play). Pick **ARM 64 v8a System Image** and download it.
-3. Name it `LightPhone` and click **Finish**. **Don't press its play button**: the script starts it in the mode Light's emulator needs.
-
-**Set it up (once, 15–30 minutes).** In Android Studio's **Terminal** tab:
+Create the virtual phone once in Device Manager: **Medium Phone**, **API 34**, **Android Open Source** (not Google Play), **ARM 64**. Name it `LightPhone` and don't start it yourself. Then:
 
 ```bash
-scripts/emulator.sh setup LightPhone
+scripts/emulator.sh setup LightPhone   # once, takes 15-30 minutes
 ```
 
-It starts the virtual phone, installs Light's emulator into it as a system app, then builds and installs House. It stops with a plain explanation if something's wrong. When it prints **All set**, open **Settings → Allowed Tools → All Tools** in the emulator so House appears in the tool list. (Our test builds aren't signed by Light.)
-
-**Every day after that:**
+After that, day to day:
 
 ```bash
-scripts/emulator.sh start      # start the virtual phone (leave its window open)
-scripts/emulator.sh install    # rebuild House and install it after changing code
+scripts/emulator.sh start      # start the virtual phone
+scripts/emulator.sh install    # build House and install it
 ```
 
-**Other screen sizes.** The Light Phone III is 1080 × 1240; the Light Flip (due April 2027) is 480 × 640.
+In the emulator, set Settings → Allowed Tools → All Tools so House shows up. Our test builds aren't signed by Light.
 
-```bash
-scripts/emulator.sh screen flip   # the virtual phone takes the Flip's screen size
-scripts/emulator.sh screen lp3    # and back
-```
+To see the Light Flip's smaller screen, run `scripts/emulator.sh screen flip` (and `screen lp3` to go back). For a quicker look, open `HousePreviews.kt` in Android Studio and click Split to see every screen at both sizes.
 
-**Typing on a hardware keyboard.** With the emulator window in front, your computer's keyboard acts as a hardware keyboard plugged into the phone: typing on it goes into House's text entry screens (address and token). (If nothing happens, the setting is off: in **Device Manager**, edit the virtual phone, open **Advanced Settings** and tick **Enable keyboard input**.)
+To test without your real home, run a Home Assistant (or anything that answers the same API) on your computer and use `10.0.2.2:8123` as the address in House. That's how the emulator reaches your computer.
 
-Faster still: open `tool/src/main/kotlin/com/zachgrosser/house/HousePreviews.kt` and click **Split** at the top right. Every screen appears at both sizes, without an emulator.
-
-## 3. Tests
+## Tests
 
 ```bash
 ./gradlew :tool:testDebugUnitTest -DlightSdk.toolOnly=true
 ```
 
-They cover addresses, tap actions, statuses, Home Assistant's JSON and setup QR codes (`ModelsTest`), and saving settings (`HouseStoreTest`). `-DlightSdk.toolOnly=true` skips building Light's example tools, which saves minutes.
+`-DlightSdk.toolOnly=true` skips Light's example tools, which saves a few minutes.
 
-## 4. What GitHub checks
+## Checks on GitHub
 
-Two workflows run automatically. Both show ✅ or ❌ on pull requests.
+Every pull request runs two checks: **Tool** (ours: tests, builds and downloadable APKs) and **PR Check** (Light's, about 12 minutes).
 
-| Workflow | When | What |
-|---|---|---|
-| **Tool** (ours) | Every pull request, and pushes to `main` that change `tool/` or the SDK | Unit tests; the release build exactly as Light's build server makes it (code shrinking on, arm64 only); downloadable test APKs |
-| **PR Check** (Light's) | Every pull request | Builds and checks the whole SDK, including our tool. Takes about 12 minutes |
+## Putting it on a real phone
 
-## 5. Putting a build on a real Light Phone III
+Each Tool run on GitHub has debug and release APKs under Artifacts. They're signed with the SDK's development key, so the phone needs Settings → Developer → Allowed tools set to All tools.
 
-Each **Tool** run on GitHub (**Actions** tab → **Tool** → a run) has an **Artifacts** section with a zip of two APKs:
+There's no official way to install your own APK on LightOS yet. People use the File Manager's Tool Inbox ([unofficial installer](https://github.com/yarosz/lightphone-wifi-install)) or `adb install` over USB. Only install APKs you trust.
 
-- `…-debug.apk` for testing.
-- `…-release.apk`, built like the version Light will sign, with code shrinking on. Test this one before submitting.
+## Light's rules
 
-Both are signed with the SDK's public development key, so the phone only shows them when **Settings → Developer → Allowed tools** is **All tools**.
+Light's build server only takes `tool/build.gradle.kts`, `tool/lighttool.toml` and `tool/src/main/`. A few things to know:
 
-There's no official way to install your own APK on LightOS 582 yet: Light's sideloading guide ([docs/sideloading](docs/sideloading/README.md)) describes a Developer upload that hasn't reached phones. Until it does, developers use the File Manager's Tool Inbox ([unofficial installer](https://github.com/yarosz/lightphone-wifi-install)), or `adb install` with USB debugging. Only install APKs you trust, and close the File Manager when you're done.
+- Don't write an `AndroidManifest.xml` or set the app id or version in `build.gradle.kts`. Light's plugin makes those from `lighttool.toml`.
+- Some Android APIs are blocked, like `Context`, `Intent`, `LocalContext` and reflection. The build will tell you. Use the SDK's versions instead.
+- Libraries have to be on Light's allow-list (`plugin/src/main/resources/com/thelightphone/plugin/allowed-dependencies.txt`).
+- In `lighttool.toml`, the `id` can never change once submitted, and `serverPackage` must be `com.lightos` when committed.
 
-## 6. Getting Light's latest SDK
-
-Light updates the SDK often. Pull their changes on a branch and open a pull request like any other change:
+Light's build server also uses its own, older SDK version (v0.2.0 as of October 2026). Something that builds fine here can fail there if it uses a newer SDK feature. To check:
 
 ```bash
-git remote add upstream https://github.com/lightphone/light-sdk.git   # once per computer
+git fetch upstream --tags
+git worktree add ../house-sdk-check v0.2.0
+rm -rf ../house-sdk-check/tool && cp -R tool ../house-sdk-check/tool
+cp local.properties ../house-sdk-check/
+(cd ../house-sdk-check && ./gradlew :tool:assembleRelease -DlightSdk.toolOnly=true -DlightSdk.abiFilters=arm64-v8a)
+git worktree remove --force ../house-sdk-check
+```
+
+## Updating Light's SDK
+
+```bash
+git remote add upstream https://github.com/lightphone/light-sdk.git   # once
 git checkout main && git pull
 git checkout -b sdk-update
 git fetch upstream && git merge upstream/main
 git push -u origin sdk-update
 ```
 
-Merge that pull request with **Create a merge commit**, never **Squash and merge**: git needs Light's commits kept as they are to know what's already been merged next time.
-
-Because we only edit `tool/` (plus our own docs and scripts), these merges rarely clash. If `tool/lighttool.toml` or `tool/build.gradle.kts` clashes, keep our values and take Light's new lines.
-
-## Checking against Light's build server
-
-Light's build server doesn't use the SDK in this repo. It builds `tool/` with its own pinned SDK version, which can be older: in October 2026 it was **v0.2.0**, while this repo had later versions merged. Code using an SDK feature added after that builds fine here and in our checks, then fails on Light's server. (Wiki's first submission failed this way.)
-
-Before submitting, or after using an SDK feature you haven't used before, build House against Light's version:
-
-```bash
-git fetch upstream --tags
-git worktree add ../house-sdk-check v0.2.0          # Light's SDK at that version, in a separate folder
-rm -rf ../house-sdk-check/tool && cp -R tool ../house-sdk-check/tool
-cp local.properties ../house-sdk-check/
-(cd ../house-sdk-check && ./gradlew :tool:assembleRelease -DlightSdk.toolOnly=true -DlightSdk.abiFilters=arm64-v8a)
-git worktree remove --force ../house-sdk-check      # clean up
-```
-
-If Light's server has moved to a newer version, use that tag instead (Light's dashboard shows build logs). House 0.1.0 builds on v0.2.0.
-
+Merge that pull request with **Create a merge commit**, not squash. Otherwise every later SDK update will conflict.

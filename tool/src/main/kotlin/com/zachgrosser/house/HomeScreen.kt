@@ -31,10 +31,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** A shortcut on the main screen with what's known about it right now. */
 data class ShortcutRow(
     val shortcut: Shortcut,
-    /** The entity's state in Home Assistant, or null before it has loaded (or if it's gone). */
+    // null until loaded, or if the entity is gone
     val state: String? = null,
     val busy: Boolean = false,
 ) {
@@ -46,7 +45,6 @@ data class HomeState(
     val connected: Boolean = false,
     val rows: List<ShortcutRow> = emptyList(),
     val refreshing: Boolean = false,
-    /** A problem to show above the list, such as Home Assistant being unreachable. */
     val message: String? = null,
 )
 
@@ -60,7 +58,6 @@ class HomeViewModel(private val store: HouseStore) : LightViewModel<Unit>() {
 
     override fun onScreenShow(screen: SimpleLightScreen<Unit>) {
         super.onScreenShow(screen)
-        // Settings or shortcuts may have changed on another screen; states may have changed in the house.
         reload()
     }
 
@@ -100,14 +97,13 @@ class HomeViewModel(private val store: HouseStore) : LightViewModel<Unit>() {
         )
     }
 
-    /** Runs a shortcut: switches it on or off, opens or closes it, or runs the scene or script. */
     fun tap(entityId: String) {
         val api = api ?: return
         val row = _state.value.rows.firstOrNull { it.shortcut.entityId == entityId } ?: return
         if (row.busy) return
         val call = tapAction(entityId, row.state ?: return) ?: return
         val before = row.state
-        // Show the expected result at once; Home Assistant confirms (or corrects) it below.
+        // Show the expected state right away, then use what Home Assistant reports.
         setRow(entityId) { it.copy(busy = true, state = expectedState(call) ?: it.state) }
         viewModelScope.launch {
             api.call(call).fold(
@@ -185,8 +181,7 @@ internal fun HomeContent(
                 !state.loaded -> Unit
                 !state.connected -> {
                     Note(
-                        "House puts a few Home Assistant shortcuts on your Light Phone: lights and " +
-                            "light groups, switches, scenes and scripts. Everything else stays in Home Assistant.",
+                        "Put a few Home Assistant shortcuts on your Light Phone: lights, switches, scenes and scripts.",
                     )
                     ListRow(title = "Connect to Home Assistant", onClick = onSettings, detail = "Address and access token")
                 }

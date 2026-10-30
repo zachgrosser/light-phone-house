@@ -3,12 +3,7 @@ package com.zachgrosser.house
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
-// Previews of every screen at each Light device's screen size, to check layouts without an
-// emulator. In Android Studio, open this file and choose "Split" or "Design" (top right).
-//
-// Light Phone III: 1080 x 1240 pixels, 3.92". Light's own previews use these dp values.
-// Light Flip:      480 x 640 pixels, 2.8" (shipping April 2027). The dp size assumes roughly
-//                  280 dpi; the Light SDK scales text and spacing to the screen.
+// Light Phone III is 1080x1240, Light Flip is 480x640 (dp size is a rough guess).
 
 @Preview(name = "Light Phone III", widthDp = 360, heightDp = 413, showBackground = true, backgroundColor = 0xFF000000)
 @Preview(name = "Light Flip", widthDp = 274, heightDp = 366, showBackground = true, backgroundColor = 0xFF000000)
@@ -85,7 +80,7 @@ private fun SettingsEmptyPreview() = HouseTheme {
 @Composable
 private fun AboutPreview() = HouseTheme { AboutContent(onBack = {}) }
 
-// --- Sample content -----------------------------------------------------------------------
+// Sample data
 
 private val SAMPLE_ROWS = listOf(
     ShortcutRow(Shortcut("light.downstairs", "Downstairs lights"), state = "on"),

@@ -8,13 +8,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 
-// The data House works with, and the rules for what a tap does. Plain Kotlin with no Android
-// classes, so it's all covered by unit tests (ModelsTest).
+// No Android classes in here, so it can all be unit tested.
 
-/**
- * The kinds of Home Assistant entities House can show, in the order the picker lists them.
- * Everything else (sensors, locks, cameras, thermostats…) is left to the full Home Assistant app.
- */
+// What House supports, in picker order. Locks and alarms are left out on purpose.
 enum class EntityKind(val heading: String, val domains: Set<String>) {
     Light("Lights", setOf("light")),
     Switch("Switches", setOf("switch")),
@@ -31,28 +27,22 @@ enum class EntityKind(val heading: String, val domains: Set<String>) {
     }
 }
 
-/** "light.kitchen" → "light". */
 fun domainOf(entityId: String): String = entityId.substringBefore('.')
 
-/** A thing in Home Assistant, as `GET /api/states` describes it. */
 data class Entity(
     val id: String,
     val state: String,
     val name: String,
-    /** For a group (such as a light group), how many entities it contains. */
     val memberCount: Int? = null,
 ) {
     val kind: EntityKind? get() = EntityKind.of(id)
 }
 
-/** One entity chosen to show on House's main screen. [name] is kept for when Home Assistant can't be reached. */
 @Serializable
 data class Shortcut(val entityId: String, val name: String)
 
-/** A Home Assistant action: `POST /api/services/<domain>/<service>` with `{"entity_id": …}`. */
 data class ServiceCall(val domain: String, val service: String, val entityId: String)
 
-/** What a shortcut shows on the right: a switch drawn on or off, or a word. */
 data class Status(val label: String, val isOn: Boolean? = null) {
     companion object {
         val Unavailable = Status("Unavailable")
@@ -61,7 +51,6 @@ data class Status(val label: String, val isOn: Boolean? = null) {
 
 private val UNAVAILABLE_STATES = setOf("unavailable", "unknown")
 
-/** What House shows for an entity of [kind] whose state is [state]. */
 fun statusOf(kind: EntityKind, state: String): Status {
     if (state in UNAVAILABLE_STATES && kind !in ACTION_KINDS) return Status.Unavailable
     return when (kind) {
@@ -84,12 +73,8 @@ fun statusOf(kind: EntityKind, state: String): Status {
 
 private val ACTION_KINDS = setOf(EntityKind.Scene, EntityKind.Script, EntityKind.Button)
 
-/**
- * What tapping [entityId] does, given its current [state]: switches turn off when on and on when
- * off; covers close when open (or opening) and open otherwise; scenes, scripts and buttons run.
- * Uses explicit on/off rather than "toggle", so a tap always does what the screen showed.
- * Null when there's nothing sensible to do (the device is unavailable).
- */
+// Uses explicit on/off instead of "toggle" so a tap does what the screen showed.
+// Returns null if the device is unavailable.
 fun tapAction(entityId: String, state: String): ServiceCall? {
     val kind = EntityKind.of(entityId) ?: return null
     val domain = domainOf(entityId)
@@ -104,7 +89,6 @@ fun tapAction(entityId: String, state: String): ServiceCall? {
     return ServiceCall(domain, service, entityId)
 }
 
-/** The state Home Assistant will most likely report straight after [call], to show at once. */
 fun expectedState(call: ServiceCall): String? = when (call.service) {
     "turn_on" -> if (call.domain in setOf("scene", "script")) null else "on"
     "turn_off" -> "off"
@@ -115,7 +99,7 @@ fun expectedState(call: ServiceCall): String? = when (call.service) {
 
 private val json = Json { ignoreUnknownKeys = true }
 
-/** Reads the JSON from `GET /api/states` (a list) or `GET /api/states/<id>` (one object). */
+// Handles both /api/states (a list) and /api/states/<id> (one object).
 fun parseStates(body: String): List<Entity> {
     val element = json.parseToJsonElement(body)
     val objects = when (element) {
@@ -131,20 +115,14 @@ private fun parseEntity(obj: JsonObject): Entity? {
     val state = (obj["state"] as? JsonPrimitive)?.contentOrNull ?: "unknown"
     val attributes = obj["attributes"] as? JsonObject
     val name = (attributes?.get("friendly_name") as? JsonPrimitive)?.contentOrNull?.trim()?.ifEmpty { null }
-    // Groups (light groups, switch groups…) list their members under "entity_id".
+    // Groups list their members under "entity_id".
     val members = (attributes?.get("entity_id") as? JsonArray)?.size
     return Entity(id = id, state = state, name = name ?: id, memberCount = members)
 }
 
-/** A line under an entity's name in the picker, such as "Group of 4". */
 fun describe(entity: Entity): String? = entity.memberCount?.let { "Group of $it" }
 
-/**
- * Turns what someone typed into a Home Assistant address: "homeassistant.local" becomes
- * "http://homeassistant.local:8123". Without "http://" or "https://", House assumes plain http on
- * Home Assistant's usual port, 8123. A trailing "/" or "/api" is dropped. Null if it isn't an
- * address.
- */
+// "homeassistant.local" -> "http://homeassistant.local:8123". No scheme means http on port 8123.
 fun normalizeAddress(input: String): String? {
     val trimmed = input.trim()
     if (trimmed.isEmpty() || trimmed.any { it.isWhitespace() }) return null
@@ -170,15 +148,11 @@ fun normalizeAddress(input: String): String? {
     }
 }
 
-/** What a setup QR code held: an access token, and maybe the address too. */
 data class SetupCode(val address: String?, val token: String)
 
 private val TOKEN_PATTERN = Regex("^[A-Za-z0-9._-]{20,}$")
 
-/**
- * Reads a scanned QR code. It can hold just the access token, or the address and the token
- * together, separated by a space or a new line (in either order). Null if no token is found.
- */
+// A QR code can hold just the token, or the address and token separated by whitespace.
 fun parseSetupCode(text: String): SetupCode? {
     val parts = text.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
     val address = parts.firstOrNull { it.startsWith("http://", true) || it.startsWith("https://", true) }

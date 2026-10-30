@@ -30,7 +30,6 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 
-/** Applies the user's LightOS theme (light or dark) and fills the screen with its background. */
 @Composable
 fun HouseTheme(content: @Composable () -> Unit) {
     val colors by LightThemeController.colors.collectAsState()
@@ -51,7 +50,6 @@ fun backButton(onClick: () -> Unit) = LightBarButton.LightIcon(
     contentDescription = "Back",
 )
 
-/** A top bar plus a centred message, used while loading and when something goes wrong. */
 @Composable
 fun MessageScreen(title: String, message: String, onBack: (() -> Unit)? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -71,10 +69,6 @@ fun MessageScreen(title: String, message: String, onBack: (() -> Unit)? = null) 
     }
 }
 
-/**
- * One tappable line in a list: a title, an optional detail line under it, and [trailing] on the
- * right (a switch, a tick box or a word).
- */
 @Composable
 fun ListRow(
     title: String,
@@ -98,13 +92,12 @@ fun ListRow(
         }
         if (trailing != null) {
             Spacer(Modifier.width(unit))
-            // As tall as Light's icons, so rows with a switch and rows with a word line up evenly.
+            // Same height as an icon so all rows line up.
             Box(modifier = Modifier.height(unit * 2f), contentAlignment = Alignment.Center) { trailing() }
         }
     }
 }
 
-/** A shortcut's state: Light's on/off switch icon, or a word such as "Run" or "Closed". */
 @Composable
 fun StatusView(status: Status?, busy: Boolean) {
     when {
@@ -118,7 +111,6 @@ fun StatusView(status: Status?, busy: Boolean) {
     }
 }
 
-/** A small heading above a group of rows, such as "Lights". */
 @Composable
 fun ListHeading(text: String) {
     val unit = 1f.gridUnitsAsDp()
@@ -130,7 +122,6 @@ fun ListHeading(text: String) {
     )
 }
 
-/** A paragraph of explanation inside a scrolling list. */
 @Composable
 fun Note(text: String, modifier: Modifier = Modifier) {
     LightText(

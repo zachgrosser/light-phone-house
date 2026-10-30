@@ -1,42 +1,34 @@
-# Contributing to House
+# Contributing
 
-Thanks for helping. House is a small Light Phone tool: a few Home Assistant shortcuts, nothing more. Everyone taking part follows our [code of conduct](CODE_OF_CONDUCT.md).
+Thanks for wanting to help with House. Bug reports, testing on real setups and code are all welcome.
 
-> The root `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` belong to Light's SDK, which this repo is built on. They're about contributing to Light's SDK itself; this file is about House.
+(The `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` at the root of the repo are Light's, for their SDK. This one is for House.)
 
-## Ways to help
+## Where to start
 
-- **Try it and report problems.** [Open an issue](https://github.com/zachgrosser/light-phone-house/issues/new/choose) with what happened and your Home Assistant version. Never paste your Home Assistant address or access token.
-- **Pick up an issue.** Ones labelled [`good first issue`](https://github.com/zachgrosser/light-phone-house/labels/good%20first%20issue) are small and self-contained. Comment that you're taking it, so two people don't build the same thing.
-- **Suggest something.** For a new feature, open an issue first and say how it keeps House small and calm. Light asks tools to be intentional: no feeds, no notifications pulling you back in.
+- Found a bug? [Open an issue](https://github.com/zachgrosser/light-phone-house/issues/new/choose). Please don't paste your Home Assistant address or token.
+- Want to code? Issues labelled [good first issue](https://github.com/zachgrosser/light-phone-house/labels/good%20first%20issue) are small. Leave a comment so we know you're on it.
+- Have an idea? Open an issue first. House is meant to stay small, so it's worth talking it through before building.
 
 ## Making a change
 
-1. **Fork** the repo (button at the top right on GitHub), then clone your fork. Regular collaborators can skip the fork and make a branch here instead. [COLLABORATING.md](../COLLABORATING.md) has both, step by step.
-2. **Set up** Android Studio, Java 17 and Light's emulator: [DEVELOPING.md](../DEVELOPING.md).
-3. **Make a branch** named after what you're doing (`git checkout -b add-brightness`).
-4. **Check your work:**
+1. Fork the repo and make a branch.
+2. Set up your machine with [DEVELOPING.md](../DEVELOPING.md).
+3. Run the tests and check your screens in `HousePreviews.kt`:
    ```bash
    ./gradlew :tool:testDebugUnitTest -DlightSdk.toolOnly=true
    ```
-   Look at your screens at both sizes in `tool/src/main/kotlin/com/zachgrosser/house/HousePreviews.kt`, and try the change on the emulator.
-5. **Open a pull request** against `main` and fill in the checklist. Our **Tool** check (tests and builds) and Light's **PR Check** run on it. The first time you contribute, a maintainer approves the checks before they start.
+4. Open a pull request. We'll review it and the checks will run.
 
-A maintainer reviews every pull request before it's merged.
+## Things to keep in mind
 
-## What gets accepted
+- Only change `tool/` and our own docs. The rest is Light's SDK.
+- Light builds tools with an older SDK than the one in this repo, so newer SDK features can break their build. See [DEVELOPING.md](../DEVELOPING.md#lights-rules).
+- Nothing risky on a single tap. That's why locks and alarms aren't in House.
+- The access token stays on the phone and only goes to the person's own Home Assistant. No analytics.
 
-- **Only change `tool/`** (and our own docs: `.github/`, `DEVELOPING.md`, `COLLABORATING.md`, `SUBMITTING.md`, `CLAUDE.md`, `scripts/`). Everything else is Light's SDK; changes to it go to [lightphone/light-sdk](https://github.com/lightphone/light-sdk).
-- **Use only SDK features Light's build server has.** Light builds House against an older pinned SDK than the one in this repo (v0.2.0 as of October 2026). If you use a newer SDK API, our checks pass but Light's build fails. [DEVELOPING.md](../DEVELOPING.md#checking-against-lights-build-server) shows how to check.
-- **Light's rules for tool code:** no `AndroidManifest.xml`, no blocked Android APIs, only allow-listed libraries. The build tells you if you break one. [CLAUDE.md](../CLAUDE.md#lights-rules-the-build-fails-or-light-rejects-the-tool-otherwise) lists them.
-- **Safety first.** Nothing that could do harm by mistake from a single tap (locks, alarms). The access token stays on the phone and goes only to the person's own Home Assistant.
-- **Privacy.** No analytics, tracking or new places data goes. If something new is sent or stored, the About screen and `tool/README.md` must say so.
-- **Tests** for logic (`Models.kt`, `HouseStore.kt` and anything like them), kept free of Android classes so they run on any computer.
+## AI tools
 
-## Using AI tools
+Fine to use, but you're responsible for what you submit. Make sure you understand your changes and can explain them, and please write issues and PR descriptions yourself.
 
-You're welcome to use them (this project uses Claude Code; `CLAUDE.md` is its notes). You're responsible for what you submit: be able to explain every change in your own words, and write issues, pull request descriptions and replies yourself.
-
-## License
-
-By contributing, you agree that your contribution is licensed under the [MIT License](../tool/LICENSE), like the rest of House.
+By contributing you agree your work is MIT licensed, like the rest of House.

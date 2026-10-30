@@ -29,21 +29,16 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.put
 
-// Talks to the person's own Home Assistant through its REST API:
-// developers.home-assistant.io/docs/api/rest/
-// Every request carries their long-lived access token as "Authorization: Bearer <token>".
+// Home Assistant REST API: developers.home-assistant.io/docs/api/rest/
 
 private val USER_AGENT = "LightPhoneHouse/${BuildConfig.VERSION_NAME}"
 
-/** Home Assistant refused the access token (it was deleted, or mistyped). */
 class NotAuthorizedException : Exception("Home Assistant didn't accept the access token")
 
-/** The entity doesn't exist any more (renamed or removed in Home Assistant). */
 class EntityMissingException(val entityId: String) : Exception("No entity called $entityId")
 
 class HomeAssistantHttpException(val status: Int) : Exception("Home Assistant answered HTTP $status")
 
-/** A short, plain explanation of a failed request, for showing on screen. */
 fun errorMessage(error: Throwable): String = when (error) {
     is NotAuthorizedException ->
         "Home Assistant didn't accept the access token. Make a new one and add it in Settings."
@@ -53,12 +48,10 @@ fun errorMessage(error: Throwable): String = when (error) {
     else -> "Something went wrong talking to Home Assistant."
 }
 
-/** About the Home Assistant server, from `GET /api/config`. */
 data class ServerInfo(val locationName: String?, val version: String?)
 
 class HomeAssistantApi(private val address: String, private val token: String) {
 
-    /** Checks the address and token work. */
     suspend fun serverInfo(): Result<ServerInfo> = apiCall {
         val response = client.get("$address/api/config") { authorize() }
         checkStatus(response)
@@ -69,18 +62,13 @@ class HomeAssistantApi(private val address: String, private val token: String) {
         )
     }
 
-    /** Every entity House knows how to show. Used by the picker. */
     suspend fun supportedEntities(): Result<List<Entity>> = apiCall {
         val response = client.get("$address/api/states") { authorize() }
         checkStatus(response)
         parseStates(response.bodyAsText()).filter { it.kind != null }
     }
 
-    /**
-     * The current state of each of [entityIds], fetched one by one (all at once). For the
-     * handful of shortcuts on the main screen this is much less data than every entity in the
-     * house. Entities that no longer exist are left out of the result.
-     */
+    // One request per shortcut instead of /api/states, which can be huge in a big house.
     suspend fun states(entityIds: List<String>): Result<Map<String, Entity>> = apiCall {
         coroutineScope {
             entityIds.map { id ->
@@ -94,10 +82,7 @@ class HomeAssistantApi(private val address: String, private val token: String) {
         }
     }
 
-    /**
-     * Runs [call]. Returns the entity's new state if Home Assistant reported it straight away
-     * (it lists the states that changed while the action ran), or null if it didn't.
-     */
+    // Returns the entity's new state if Home Assistant included it in the response.
     suspend fun call(call: ServiceCall): Result<Entity?> = apiCall {
         val response = client.post("$address/api/services/${call.domain}/${call.service}") {
             authorize()
@@ -121,7 +106,7 @@ class HomeAssistantApi(private val address: String, private val token: String) {
         if (!response.status.isSuccess()) throw HomeAssistantHttpException(response.status.value)
     }
 
-    /** Like runCatching, but lets coroutine cancellation through. */
+    // Like runCatching, but doesn't swallow cancellation.
     private suspend fun <T> apiCall(block: suspend () -> T): Result<T> = try {
         Result.success(block())
     } catch (e: CancellationException) {
@@ -133,7 +118,6 @@ class HomeAssistantApi(private val address: String, private val token: String) {
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 
-        /** One HTTP client for the whole tool. */
         private val client = HttpClient(OkHttp) {
             install(HttpTimeout) {
                 connectTimeoutMillis = 8_000

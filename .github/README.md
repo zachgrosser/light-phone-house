@@ -1,59 +1,26 @@
-# light-phone-house
+# House
 
-A tool for the **Light Phone III**, built on [Light's official SDK](https://github.com/lightphone/light-sdk).
+House is a small Light Phone tool for Home Assistant. Pick a few lights, switches, scenes or scripts and they show up as a simple list you can tap. It's not meant to replace the Home Assistant app, just to cover the handful of things you reach for most.
 
-## House
+It talks only to your own Home Assistant. No ads, no tracking.
 
-A few Home Assistant shortcuts on the Light Phone: switch lights and light groups on and off, open and close blinds and garage doors, and run scenes and scripts. Choose what appears; everything else stays in Home Assistant.
+More on how it works and how to set it up: [tool/README.md](../tool/README.md)
 
-- Connects straight to your own Home Assistant with a long-lived access token (scan it from a QR code or type it).
-- No ads, analytics or tracking. Nothing goes anywhere but your Home Assistant.
-- Works on the Light Phone III's screen and adapts to smaller ones like the Light Flip's.
+## Getting started
 
-How it works, what it supports and how to set it up: [`tool/README.md`](../tool/README.md).
+- [DEVELOPING.md](../DEVELOPING.md): set up Android Studio and Light's emulator, run the tests
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to help
+- [COLLABORATING.md](../COLLABORATING.md): branches, pull requests, forks
+- [SUBMITTING.md](../SUBMITTING.md): sending a release to Light
 
-## Where to start
+## About this repo
 
-| I want to… | Read |
-|---|---|
-| Help out: report a problem, pick up an issue, send a change | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Set up my computer, run House on the emulator, run the tests | [DEVELOPING.md](../DEVELOPING.md) |
-| Work on this with others (branches, pull requests, reviews) | [COLLABORATING.md](../COLLABORATING.md) |
-| Send House to Light for their Tool Library | [SUBMITTING.md](../SUBMITTING.md) |
-| Know what Light accepts | Light's [TOOL_GUIDELINES.md](../TOOL_GUIDELINES.md) |
-| Understand the SDK itself | Light's [README](../README.md) and [docs](../docs) |
+This is a copy of [Light's SDK](https://github.com/lightphone/light-sdk) with House added in `tool/`. We only edit `tool/`, `scripts/`, `.github/` and our own guides. Everything else is Light's and gets updated from their repo, so please leave it alone.
 
-## What's in this repo
+Our other Light Phone tool, Wiki, lives in [light-phone-tools](https://github.com/zachgrosser/light-phone-tools). Light builds one tool per repo.
 
-This repo is a copy of Light's SDK with our tool added. **Our code lives in `tool/`**; everything else comes from Light and is updated from their repo.
+## License
 
-| Folder / file | What it is | Do we edit it? |
-|---|---|---|
-| `tool/` | **House**: its code, tests, settings (`lighttool.toml`) and license | ✅ Yes |
-| `scripts/emulator.sh` | Sets up and runs Light's emulator on a Mac | ✅ Yes |
-| `.github/` | This page, our contributing guide, code of conduct, security policy, build workflow, pull request and issue templates | ✅ Yes |
-| `DEVELOPING.md`, `COLLABORATING.md`, `SUBMITTING.md` | Our guides | ✅ Yes |
-| `CLAUDE.md` | Notes Claude Code reads at the start of every session (also a good summary for people) | ✅ Yes |
-| `examples/` | Light's sample tools (weather, authenticator, …) | 👀 Read for ideas |
-| `docs/`, `README.md`, `TOOL_GUIDELINES.md`, `CONTRIBUTING.md` | Light's documentation | 👀 Read |
-| `sdk/`, `plugin/`, `lint-rules/`, `builder/`, `signer/`, … | The SDK itself | ❌ No, it comes from Light |
+House is MIT licensed ([tool/LICENSE](../tool/LICENSE)). Light's SDK is also MIT.
 
-> GitHub shows this file (`.github/README.md`) as the front page instead of Light's README, so updates from Light never clash with it.
-
-Our other Light Phone tool, **Wiki**, lives in [light-phone-tools](https://github.com/zachgrosser/light-phone-tools). Light builds one tool per repo (from its `tool/` folder), so each has its own.
-
-## Licenses
-
-- House's code (`tool/`): [MIT](../tool/LICENSE).
-- Light's SDK (everything else): [MIT](../LICENSE), © The Light Phone.
-
-Home Assistant is a trademark of the Open Home Foundation. This project isn't made by, affiliated with or endorsed by Home Assistant, the Open Home Foundation or Light.
-
-## Contributing
-
-Contributions are welcome, from fixing a typo to new shortcut types. Start with [CONTRIBUTING.md](CONTRIBUTING.md); issues labelled [`good first issue`](https://github.com/zachgrosser/light-phone-house/labels/good%20first%20issue) are a good way in. Security problems: [SECURITY.md](SECURITY.md), privately.
-
-## Who's working on this
-
-- [@zachgrosser](https://github.com/zachgrosser)
-- *(add your name here in your first pull request)*
+Home Assistant is a trademark of the Open Home Foundation. House isn't affiliated with or endorsed by Home Assistant or Light.

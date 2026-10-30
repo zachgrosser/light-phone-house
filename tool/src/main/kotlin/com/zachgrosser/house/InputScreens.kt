@@ -16,7 +16,6 @@ import com.thelightphone.sdk.rememberKeyboardOptions
 import com.thelightphone.sdk.ui.LightTextInputEditor
 import com.thelightphone.sdk.ui.LightThemeTokens
 
-/** Light's full-screen text entry with its on-screen keyboard. Returns what was typed. */
 class TextEntryScreen(
     sealedActivity: SealedLightActivity,
     private val title: String,
@@ -42,7 +41,6 @@ class TextEntryScreen(
     }
 }
 
-/** Light's QR code scanner. Returns the code's text. Asks for the camera the first time. */
 class ScanScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<String>(sealedActivity) {
 
     @Composable
@@ -56,7 +54,7 @@ class ScanScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<String
                 modifier = Modifier.background(LightThemeTokens.colors.background),
             )
         }
-        // Leave the scanner after it has finished drawing, as the SDK asks.
+        // The SDK asks us to navigate away outside of onScanned.
         LaunchedEffect(scanned) {
             scanned?.let { goBack(it) }
         }
