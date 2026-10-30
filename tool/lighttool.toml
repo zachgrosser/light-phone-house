@@ -1,10 +1,16 @@
 [tool]
-id = "com.thelightphone.app"
-label = "Light SDK Tool"
+id = "com.zachgrosser.house"
+label = "House"
 versionCode = 1
-versionName = "1.0.0"
-permissions = ["android.permission.INTERNET"]
-capabilities = []
-# for the LightOS emulator, use the line below and build with -DlightSdk.allowAltServerPackage=true
+versionName = "0.1.0"
+# INTERNET: talk to Home Assistant. CAMERA: scan the access token from a QR code.
+permissions = ["android.permission.INTERNET", "android.permission.CAMERA"]
+# cleartext-http: most Home Assistant setups are plain http on the home network
+# (http://homeassistant.local:8123), which Android blocks unless the tool allows it.
+capabilities = ["cleartext-http"]
+# No orientation lock: on the Light Phone III's near-square screen, Android shrinks
+# portrait-locked apps into a narrower box instead of using the full width.
+# LightOS on a real Light Phone III. For the LightOS emulator, use the line below instead
+# and build with -DlightSdk.allowAltServerPackage=true
 # serverPackage = "com.thelightphone.sdk.emulator"
 serverPackage = "com.lightos"

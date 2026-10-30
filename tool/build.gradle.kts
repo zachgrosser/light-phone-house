@@ -37,6 +37,11 @@ android {
         }
     }
 
+    buildFeatures {
+        // House reads its version from BuildConfig (set by Light's plugin from lighttool.toml).
+        buildConfig = true
+    }
+
     defaultConfig {
         minSdk = rootProject.ext["minSdk"] as Int
         targetSdk = rootProject.ext["targetSdk"] as Int

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem
+    url: https://github.com/zachgrosser/light-phone-house/security/advisories/new
+    about: Report it privately here.
+  - name: Problem with Light's SDK
+    url: https://github.com/lightphone/light-sdk/issues
+    about: SDK issues go to Light.
