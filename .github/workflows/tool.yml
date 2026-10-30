@@ -1,6 +1,6 @@
 name: Tool
 
-# Checks our tool on every push that touches it:
+# Checks our tool on every pull request (including ones from forks) and on pushes to main:
 #   1. runs its unit tests,
 #   2. builds the release version the way Light's build server does (code shrinking on,
 #      arm64 only), to catch problems before submitting,
@@ -10,7 +10,11 @@ name: Tool
 # real one when the tool is submitted on dashboard.thelightphone.com.
 
 on:
+  # Every pull request, with no path filter, so this check always reports and can be required
+  # before merging. Pull requests from forks run with read-only access and no secrets.
+  pull_request:
   push:
+    branches: [main]
     paths:
       - 'tool/**'
       - 'sdk/**'

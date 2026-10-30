@@ -5,6 +5,7 @@ Light builds and signs community tools from a **public** GitHub repo, then revie
 ## Before submitting
 
 - [ ] **Merged into `main`.** Light reads the tool's package name from the default branch. (A pull request that brings in Light's SDK uses **Create a merge commit**, not squash.)
+- [ ] **Builds against Light's build-server SDK** (see [DEVELOPING.md](DEVELOPING.md#checking-against-lights-build-server)).
 - [ ] **Latest Light SDK merged in.** Light requires it (see [DEVELOPING.md §6](DEVELOPING.md#6-getting-lights-latest-sdk)).
 - [ ] **The Tool workflow is green on `main`**, especially the release build, which matches what Light's server runs.
 - [ ] **Tried the release APK** on the emulator or a phone (DEVELOPING.md §5): connect (address, then token by QR and by typing), Check connection, EDIT and tick a few, tap each kind (light, light group, switch, cover, scene, script), a wrong token, Home Assistant switched off, Forget, About.
@@ -15,9 +16,9 @@ Light builds and signs community tools from a **public** GitHub repo, then revie
 - [ ] **Against Light's [Tool Guidelines](TOOL_GUIDELINES.md):** intentional (a short list of shortcuts the person chose; no feeds or notifications), private (talks only to their own Home Assistant; no tracking; disclosed), no ads, open source (MIT), built with the SDK, Light's design components, Home Assistant's name used only to describe what House works with.
 - [ ] **We can explain every change in our own words.** Light's team reviews each submitted build before approving it.
 
-## Make the repo public
+## The repo is public
 
-**Settings → General → Danger Zone → Change visibility → Public.** Anyone will be able to see the code and its history. It contains no keys or passwords: the signing key in `sdk/keys/` is Light's public development key, and `local.properties` is never committed. Once public, turn on branch protection for `main` (**Settings → Branches**), and the source link on House's About screen starts working.
+Light builds tools from public repos only. This one has been public since October 2026, with `main` protected (see [COLLABORATING.md §7](COLLABORATING.md#7-good-to-know)). It contains no keys or passwords: the signing key in `sdk/keys/` is Light's public development key, and `local.properties` is never committed.
 
 ## On Light's dashboard
 

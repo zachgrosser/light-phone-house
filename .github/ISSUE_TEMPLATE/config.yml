@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/zachgrosser/light-phone-house/security/advisories/new
+    about: Privately. Please don't post security problems, tokens or addresses publicly.
+  - name: A problem with Light's SDK or LightOS
+    url: https://github.com/lightphone/light-sdk/issues
+    about: Issues with the SDK itself go to Light.

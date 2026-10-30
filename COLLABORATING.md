@@ -1,6 +1,6 @@
 # Working on this repo together
 
-This guide covers three things: how to invite someone, how they get set up, and the everyday steps for working without stepping on each other's toes.
+This guide covers how to invite someone, how they get set up, the everyday steps for working without stepping on each other's toes, and how anyone else can contribute from a fork ([§8](#8-contributing-without-access-forks)). The repo is public: anyone can read it, open issues and send pull requests. [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) is the short version for newcomers.
 
 ---
 
@@ -13,7 +13,7 @@ This guide covers three things: how to invite someone, how they get set up, and 
 
 That's it. They get an invite by email, and it **expires after 7 days**. If it runs out, just send a new one.
 
-As a collaborator on a personal repo, your friend can read the code, push changes, open pull requests and manage issues. They **can't** change the repo's settings, delete it or invite other people. Only the owner can.
+As a collaborator on a personal repo, your friend can push branches, open pull requests, review and manage issues. Their pull requests still need the owner's approval before merging (see §7). They **can't** change the repo's settings, delete it or invite other people. Only the owner can.
 
 ## 2. Accept the invite and get set up (collaborator does this once)
 
@@ -86,6 +86,8 @@ Before opening one, run the tests (`./gradlew :tool:testDebugUnitTest -DlightSdk
 
 ### Merge it
 
+`main` is protected (§7): every change arrives through a pull request, the **Test and build** check must pass, and someone other than the author must approve it. The owner can merge their own pull requests without an approval when working alone, but asking for a review is still good practice.
+
 Once it's approved and the check is green, click **Squash and merge** on GitHub, then **Delete branch**. Or run:
 
 ```bash
@@ -119,5 +121,23 @@ Every so often, one of you merges Light's latest SDK on a branch and opens a pul
 
 ## 7. Good to know
 
-- **Protecting `main`:** GitHub can block direct pushes to `main` with a setting called *branch protection*. On a free account that only works for **public** repos. While this repo is private, the golden rule above is a team agreement. Once it's public, turn it on under **Settings → Branches**.
+- **Protecting `main`:** a ruleset (**Settings → Rules → Rulesets → main**) blocks pushing straight to `main`, force-pushing and deleting it. Changes need a pull request with one approval and a passing **Test and build** check. The repo admin can bypass the approval for their own pull requests. Merging allows **Squash** and **Merge commit** (for Light's SDK updates), not rebase. Merged branches are deleted automatically.
 - **Contributing to Light's SDK itself** is a different process: issues and pull requests on [lightphone/light-sdk](https://github.com/lightphone/light-sdk). Read their [CONTRIBUTING.md](CONTRIBUTING.md) first. They ask that issues and PRs be written by a human, and that you can explain any code change in your own words.
+
+## 8. Contributing without access: forks
+
+Anyone on GitHub can contribute without being invited, through a *fork*: their own copy of the repo.
+
+1. On **github.com/zachgrosser/light-phone-house**, click **Fork**, then **Create fork**.
+2. Clone your fork and connect it to this repo, to stay up to date:
+   ```bash
+   gh repo clone <your-username>/light-phone-house
+   cd light-phone-house
+   git remote add upstream-house https://github.com/zachgrosser/light-phone-house.git
+   ```
+   (`gh repo clone` may have added this repo as `upstream` already; either name works.)
+3. Work on a branch as in §3, push it to your fork, then run `gh pr create` (or click **Compare & pull request** on GitHub). The pull request goes to this repo's `main`.
+4. Before starting work, catch up: `git checkout main && git pull upstream-house main`.
+
+**For maintainers:** the first time someone contributes, GitHub waits for a maintainer to click **Approve and run** before the checks start. Read the changes before approving: the checks run their code on GitHub's machines. The checks have read-only access and no secrets, but a quick look first is still the habit. Review a fork's pull request like any other; `gh pr checkout <number>` works for forks too.
+

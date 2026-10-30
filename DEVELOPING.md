@@ -64,7 +64,7 @@ Two workflows run automatically. Both show ✅ or ❌ on pull requests.
 
 | Workflow | When | What |
 |---|---|---|
-| **Tool** (ours) | Every push that changes `tool/` | Unit tests; the release build exactly as Light's build server makes it (code shrinking on, arm64 only); downloadable test APKs |
+| **Tool** (ours) | Every pull request, and pushes to `main` that change `tool/` or the SDK | Unit tests; the release build exactly as Light's build server makes it (code shrinking on, arm64 only); downloadable test APKs |
 | **PR Check** (Light's) | Every pull request | Builds and checks the whole SDK, including our tool. Takes about 12 minutes |
 
 ## 5. Putting a build on a real Light Phone III
@@ -93,3 +93,21 @@ git push -u origin sdk-update
 Merge that pull request with **Create a merge commit**, never **Squash and merge**: git needs Light's commits kept as they are to know what's already been merged next time.
 
 Because we only edit `tool/` (plus our own docs and scripts), these merges rarely clash. If `tool/lighttool.toml` or `tool/build.gradle.kts` clashes, keep our values and take Light's new lines.
+
+## Checking against Light's build server
+
+Light's build server doesn't use the SDK in this repo. It builds `tool/` with its own pinned SDK version, which can be older: in October 2026 it was **v0.2.0**, while this repo had later versions merged. Code using an SDK feature added after that builds fine here and in our checks, then fails on Light's server. (Wiki's first submission failed this way.)
+
+Before submitting, or after using an SDK feature you haven't used before, build House against Light's version:
+
+```bash
+git fetch upstream --tags
+git worktree add ../house-sdk-check v0.2.0          # Light's SDK at that version, in a separate folder
+rm -rf ../house-sdk-check/tool && cp -R tool ../house-sdk-check/tool
+cp local.properties ../house-sdk-check/
+(cd ../house-sdk-check && ./gradlew :tool:assembleRelease -DlightSdk.toolOnly=true -DlightSdk.abiFilters=arm64-v8a)
+git worktree remove --force ../house-sdk-check      # clean up
+```
+
+If Light's server has moved to a newer version, use that tag instead (Light's dashboard shows build logs). House 0.1.0 builds on v0.2.0.
+

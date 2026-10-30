@@ -16,6 +16,7 @@ How it works, what it supports and how to set it up: [`tool/README.md`](../tool/
 
 | I want to… | Read |
 |---|---|
+| Help out: report a problem, pick up an issue, send a change | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Set up my computer, run House on the emulator, run the tests | [DEVELOPING.md](../DEVELOPING.md) |
 | Work on this with others (branches, pull requests, reviews) | [COLLABORATING.md](../COLLABORATING.md) |
 | Send House to Light for their Tool Library | [SUBMITTING.md](../SUBMITTING.md) |
@@ -30,7 +31,7 @@ This repo is a copy of Light's SDK with our tool added. **Our code lives in `too
 |---|---|---|
 | `tool/` | **House**: its code, tests, settings (`lighttool.toml`) and license | ✅ Yes |
 | `scripts/emulator.sh` | Sets up and runs Light's emulator on a Mac | ✅ Yes |
-| `.github/` | This page, our build workflow, pull request and issue templates | ✅ Yes |
+| `.github/` | This page, our contributing guide, code of conduct, security policy, build workflow, pull request and issue templates | ✅ Yes |
 | `DEVELOPING.md`, `COLLABORATING.md`, `SUBMITTING.md` | Our guides | ✅ Yes |
 | `CLAUDE.md` | Notes Claude Code reads at the start of every session (also a good summary for people) | ✅ Yes |
 | `examples/` | Light's sample tools (weather, authenticator, …) | 👀 Read for ideas |
@@ -47,6 +48,10 @@ Our other Light Phone tool, **Wiki**, lives in [light-phone-tools](https://githu
 - Light's SDK (everything else): [MIT](../LICENSE), © The Light Phone.
 
 Home Assistant is a trademark of the Open Home Foundation. This project isn't made by, affiliated with or endorsed by Home Assistant, the Open Home Foundation or Light.
+
+## Contributing
+
+Contributions are welcome, from fixing a typo to new shortcut types. Start with [CONTRIBUTING.md](CONTRIBUTING.md); issues labelled [`good first issue`](https://github.com/zachgrosser/light-phone-house/labels/good%20first%20issue) are a good way in. Security problems: [SECURITY.md](SECURITY.md), privately.
 
 ## Who's working on this
 
